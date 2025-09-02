@@ -1,10 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+
+  // Enable global validation pipeline - CRITICAL FOR DTOS
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Remove properties not defined in DTOs
+      forbidNonWhitelisted: true, // Throw error if unknown properties are sent
+      transform: true, // Automatically transform payloads to DTO instances
+    }),
+  );
 
   // Validate MongoDB connection string
   const mongodbUri = configService.get<string>('MONGODB_URI');
@@ -21,6 +31,7 @@ async function bootstrap(): Promise<void> {
 
   console.log(`🚀 Application is running on: http://localhost:${port}`);
   console.log(`📦 MongoDB URI: ${mongodbUri || 'Using default local MongoDB'}`);
+  console.log(`✅ Validation pipeline enabled for DTOs`);
 }
 
 bootstrap().catch((error: Error) => {
