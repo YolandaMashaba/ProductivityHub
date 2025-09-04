@@ -19,18 +19,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {
     super({
-      jwtFromRequest: this.customExtractor,
+      jwtFromRequest: (req: Request) => {
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          return authHeader.substring(7);
+        }
+        return null;
+      },
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET')!,
     });
-  }
-
-  private customExtractor(req: Request): string | null {
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      return authHeader.substring(7);
-    }
-    return null;
   }
 
   async validate(payload: JwtPayload) {
