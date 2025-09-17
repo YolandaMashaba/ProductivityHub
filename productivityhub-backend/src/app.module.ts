@@ -17,7 +17,7 @@ import { NotesModule } from './notes/notes.module';
         await Promise.resolve();
         const uri = configService.get<string>(
           'MONGODB_URI',
-          'mongodb://localhost:27017/productivityhub',
+          'mongodb+srv://nkokayolanda_db_user:<db_password>@productivityhub.dpmfnby.mongodb.net/?retryWrites=true&w=majority&appName=ProductivityHub',
         );
         return { uri };
       },
